@@ -10,6 +10,9 @@ use chumsky::prelude::*;
 fn input_parser() -> impl Parser<char, Vec<usize>, Error = Simple<char>> {
     c::text::int(10)
         // Q: why do I need to specify `: String` for map?
+        // A? Maybe because normally the parser output is a Vec<char>, and specifying String here
+        //    makes the compiler do a String::from(char_vec), so I can directly use the string obj
+        //    instead of having to manually do that Vec to String conversion?
         .map(|s: String| s.parse().unwrap())
         .separated_by(c::text::newline())
 }
