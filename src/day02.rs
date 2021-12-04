@@ -20,16 +20,15 @@ enum Cmd {
 //   ...
 fn input_parser() -> impl Parser<char, Vec<Cmd>, Error = Simple<char>> {
     let number = c::text::int(10).map(|s: String| s.parse().unwrap());
-    let cmd_line =
-        c::text::ident()
-            .then_ignore(just(' '))
-            .then(number)
-            .map(|(cmd, by_count)| match cmd.as_str() {
-                "forward" => Cmd::Forward(by_count),
-                "up" => Cmd::Up(by_count),
-                "down" => Cmd::Down(by_count),
-                _ => unreachable!(),
-            });
+    let cmd_line = c::text::ident()
+        .then_ignore(just(' '))
+        .then(number)
+        .map(|(cmd, by_count)| match cmd.as_str() {
+            "forward" => Cmd::Forward(by_count),
+            "up" => Cmd::Up(by_count),
+            "down" => Cmd::Down(by_count),
+            _ => unreachable!(),
+        });
     cmd_line.separated_by(c::text::newline())
 }
 
@@ -57,7 +56,7 @@ pub fn solve_part2(raw_input: &str) -> (usize, Option<usize>) {
             Cmd::Forward(by_count) => {
                 hpos += by_count;
                 depth += by_count * aim;
-            },
+            }
             Cmd::Down(by_count) => aim += by_count,
             Cmd::Up(by_count) => aim -= by_count,
         }
