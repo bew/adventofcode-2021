@@ -55,11 +55,14 @@ impl BitPopularity {
     }
 }
 
-fn bit_popularity_at_idx(numbers: &[usize], column: u8) -> BitPopularity {
+fn number_get_bit_at_idx(number: usize, bit_idx: u8) -> usize {
+    (number & (1 << bit_idx)) >> bit_idx
+}
+
+fn bit_popularity_at_idx(numbers: &[usize], bit_idx: u8) -> BitPopularity {
     let mut is1_diff = 0;
     for num in numbers {
-        let is1 = num & (1 << column) != 0;
-        if is1 {
+        if number_get_bit_at_idx(*num, bit_idx) == 1 {
             is1_diff += 1;
         } else {
             is1_diff -= 1;
@@ -97,10 +100,6 @@ pub fn solve_part1(raw_input: &str) -> (usize, Option<usize>) {
     (power_consumption, Some(841526))
 }
 
-fn number_get_bit_at(number: usize, bit_idx: u8) -> usize {
-    (number & (1 << bit_idx)) >> bit_idx
-}
-
 pub fn solve_part2(raw_input: &str) -> (usize, Option<usize>) {
     let (max_len, numbers) = input_parser().parse(raw_input).unwrap();
 
@@ -109,7 +108,7 @@ pub fn solve_part2(raw_input: &str) -> (usize, Option<usize>) {
         for bit_idx in (0u8..max_len).rev() {
             let bit_popularity = bit_popularity_at_idx(&numbers, bit_idx);
             let bit_criteria = bit_popularity.value_or(1); // criteria when Equal: 1
-            numbers.retain(|num| number_get_bit_at(*num, bit_idx) == bit_criteria.into());
+            numbers.retain(|num| number_get_bit_at_idx(*num, bit_idx) == bit_criteria.into());
 
             // let numbers_as_bits: Vec<String> = numbers.iter().map(|num| format!("{:#012b}", num)).collect();
             // dbg!(bit_idx, bit_popularity, bit_criteria, &numbers_as_bits);
@@ -129,7 +128,7 @@ pub fn solve_part2(raw_input: &str) -> (usize, Option<usize>) {
             let bit_least_popularity = bit_popularity.invert_popularity();
             // In this case we look for the least popularity:
             let bit_criteria = bit_least_popularity.value_or(0); // criteria when Equal: 0
-            numbers.retain(|num| number_get_bit_at(*num, bit_idx) == bit_criteria.into());
+            numbers.retain(|num| number_get_bit_at_idx(*num, bit_idx) == bit_criteria.into());
 
             // let numbers_as_bits: Vec<String> = numbers.iter().map(|num| format!("{:#012b}", num)).collect();
             // dbg!(bit_idx, bit_popularity, bit_criteria, &numbers_as_bits);
@@ -154,6 +153,20 @@ mod tests {
         let res = input_parser().parse("0110\n01010\n").unwrap();
         dbg!(&res);
         assert!(res == (5, vec![0x6, 0xA]));
+    }
+
+    #[test]
+    fn test_get_bit_at_index() {
+        //            idx: >>|76543210|<<
+        static NUM: usize = 0b00110100;
+        assert!(number_get_bit_at_idx(NUM, 0) == 0);
+        assert!(number_get_bit_at_idx(NUM, 1) == 0);
+        assert!(number_get_bit_at_idx(NUM, 2) == 1);
+        assert!(number_get_bit_at_idx(NUM, 3) == 0);
+        assert!(number_get_bit_at_idx(NUM, 4) == 1);
+        assert!(number_get_bit_at_idx(NUM, 5) == 1);
+        assert!(number_get_bit_at_idx(NUM, 6) == 0);
+        assert!(number_get_bit_at_idx(NUM, 7) == 0);
     }
 
     // NOTE: didn't find a simple way to unindent a set of indented lines.. for the
