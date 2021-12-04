@@ -31,14 +31,6 @@ macro_rules! def_day {
     };
 }
 
-// NOTE: We use a slice of the array to not have to specify its size in the type.
-//       See: https://stackoverflow.com/questions/23810032/how-to-specify-const-array-in-global-scope-in-rust
-//
-// NOTE: I tried to create a `Day::new` function to simplify creation of `Day` but the compiler
-//       yelled at me about the fact that only constant things can be called for a static
-//       variable, and if I change the constructor to be a const function, it tells me that
-//       passing functions (like `day01::solve`) to a const function is unstable and not well
-//       supported.. So struct constructor it is! :D
 static DAYS: &[Day] = &[
     // Day {
     //     name: "day01",
@@ -48,6 +40,7 @@ static DAYS: &[Day] = &[
     // },
     // same as:
     def_day!(day01),
+    // ---
     def_day!(day02),
 ];
 
