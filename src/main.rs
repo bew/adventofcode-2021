@@ -54,11 +54,20 @@ static DAYS: &[Day] = &[
 fn print_usage() {
     let prog_name = env::args().next().unwrap_or("prog".to_string());
     let day_names: Vec<_> = DAYS.iter().map(|d| d.name).collect();
-    println!("Usage: {} <day> [<custom_input_path>]", prog_name);
-    println!(
-        "Where <day> is either 'all', 'last' or one of: {}",
-        day_names.join(", ")
-    );
+    println!("Usage:");
+    println!("  {} <cmd>", prog_name);
+    println!("  {} <day> [<custom_input_path>]", prog_name);
+    println!("");
+
+    println!("<cmd> can be:");
+    println!("  all   - run all available days");
+    println!("  last  - run the last available day (used while dev)");
+    println!("  list  - list available days");
+    println!("");
+
+    let joined_days = day_names.join(", ");
+    println!("<day> can be one of: {}", joined_days);
+    println!("");
     exit(1);
 }
 
@@ -92,10 +101,10 @@ fn main() -> anyhow::Result<()> {
     // TODO: Use clap to parse params to structured opts!
     let prog_args: Vec<String> = env::args().collect();
     let first_arg = prog_args.get(1);
-    // Converts Option<String> to Option<&str> so I can match on `Some("all")`
-    // (necessary because matching on `Some("all".to_string())` does not work
-    // and matching on `Some(xyz) if xyz == "all"` is ugly..).
-    match first_arg.and_then(|s| Some(s.as_str())) {
+
+    // NOTE: We convert Option<String> to Option<&str> to be able to match on `Some("all")`,
+    //       instead of matching `Some(xyz) if xyz == "all"` many times, which is quite ugly.
+    match first_arg.map(String::as_str) {
         Some("all") => {
             for day in DAYS {
                 run_day(day)?;
@@ -103,6 +112,14 @@ fn main() -> anyhow::Result<()> {
         }
         Some("last") => {
             run_day(&DAYS.last().unwrap())?;
+        }
+        Some("list") => {
+            println!("Available days:");
+            for day in DAYS {
+                println!("- {}", day.name);
+                // TODO: Display how finish that day it, by running it without displaying anything
+                //       (need to return proper enum with all statuses)
+            }
         }
         Some(wanted_day) => {
             let matching_day = DAYS.iter().find(|day| day.name == wanted_day);
