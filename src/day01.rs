@@ -23,6 +23,11 @@ enum IncDec {
     Decrease,
 }
 
+// NOTE instead of multiple zip iterator to make a sliding window, I could have used
+// https://doc.rust-lang.org/std/primitive.slice.html#method.windows (which exists on Vec),
+// main difference in usage is that it gives an iterator of slices, not of tuples, so I think I
+// can't destructure it as easily in closures.
+
 fn count_increasing_measures(measures: &[usize]) -> usize {
     measures
         .iter()
