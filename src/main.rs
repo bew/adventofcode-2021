@@ -8,6 +8,7 @@ use anyhow::Result as AnyResult;
 mod day01;
 mod day02;
 mod day03;
+mod day04;
 
 // NOTE: We can't pass generic type that impl Read, so we pass a trait object, which will use
 //       dynamic dispatch on use.
@@ -44,6 +45,7 @@ static DAYS: &[Day] = &[
     // ---
     def_day!(day02),
     def_day!(day03),
+    def_day!(day04),
 ];
 
 fn print_usage() {
