@@ -26,8 +26,17 @@ fn input_parser() -> impl Parser<char, (u8, Vec<usize>), Error = Simple<char>> {
     let report_parser = bit_based_number.separated_by(c::text::newline());
     // extract the numbers and the bit length of the numbers, to be directly usable :)
     report_parser.map(|diag_report: Vec<(u8, usize)>| {
-        let max_len = diag_report.iter().cloned().map(|(len, _)| len).max().unwrap();
-        let numbers: Vec<usize> = diag_report.iter().cloned().map(|(_, number)| number).collect();
+        let max_len = diag_report
+            .iter()
+            .cloned()
+            .map(|(len, _)| len)
+            .max()
+            .unwrap();
+        let numbers: Vec<usize> = diag_report
+            .iter()
+            .cloned()
+            .map(|(_, number)| number)
+            .collect();
         (max_len, numbers)
     })
 }
@@ -81,7 +90,8 @@ pub fn solve_part1(raw_input: &str) -> (usize, Option<usize>) {
 
     let mut gamma_rate = 0 as usize;
     for bit_idx in (0u8..max_len).rev() {
-        if let BitPopularity::One | BitPopularity::Equal = bit_popularity_at_idx(&numbers, bit_idx) {
+        if let BitPopularity::One | BitPopularity::Equal = bit_popularity_at_idx(&numbers, bit_idx)
+        {
             // println!("most common is 1 for bit idx: {}", bit_idx);
             gamma_rate += 1 << bit_idx;
         }
@@ -94,7 +104,7 @@ pub fn solve_part1(raw_input: &str) -> (usize, Option<usize>) {
     // println!("mask of 1 (size {}): {:#012b}", max_len, max_len_mask_of_1);
 
     let epsilon_rate = max_len_mask_of_1 ^ gamma_rate; // invert all `max_len` bits
-    // dbg!((gamma_rate, epsilon_rate));
+                                                       // dbg!((gamma_rate, epsilon_rate));
 
     let power_consumption = gamma_rate * epsilon_rate;
     (power_consumption, Some(841526))
@@ -113,7 +123,9 @@ pub fn solve_part2(raw_input: &str) -> (usize, Option<usize>) {
             // let numbers_as_bits: Vec<String> = numbers.iter().map(|num| format!("{:#012b}", num)).collect();
             // dbg!(bit_idx, bit_popularity, bit_criteria, &numbers_as_bits);
 
-            if numbers.len() == 1 { break }
+            if numbers.len() == 1 {
+                break;
+            }
         }
         // There should be only one number left, take it out!
         numbers.pop().unwrap()
@@ -133,7 +145,9 @@ pub fn solve_part2(raw_input: &str) -> (usize, Option<usize>) {
             // let numbers_as_bits: Vec<String> = numbers.iter().map(|num| format!("{:#012b}", num)).collect();
             // dbg!(bit_idx, bit_popularity, bit_criteria, &numbers_as_bits);
 
-            if numbers.len() == 1 { break }
+            if numbers.len() == 1 {
+                break;
+            }
         }
         // There should be only one number left, take it out!
         numbers.pop().unwrap()
