@@ -37,12 +37,8 @@ impl BingoBoard {
         BingoBoard { lines }
     }
     fn is_winning(&self) -> bool {
-        let has_win_line = (0..5).any(|line| {
-            (0..5).all(|col| self.is_marked_at(line, col))
-        });
-        let has_win_col = (0..5).any(|col| {
-            (0..5).all(|line| self.is_marked_at(line, col))
-        });
+        let has_win_line = (0..5).any(|line| (0..5).all(|col| self.is_marked_at(line, col)));
+        let has_win_col = (0..5).any(|col| (0..5).all(|line| self.is_marked_at(line, col)));
         has_win_line || has_win_col
     }
     fn is_marked_at(&self, line: u8, col: u8) -> bool {
@@ -115,7 +111,7 @@ fn input_parser() -> impl Parser<char, (Vec<BingoNum>, Vec<BingoBoard>), Error =
         .separated_by(just(' '))
         // NOTE: at_least is necessary to not match the final newline followed by the end.
         .at_least(1);
-        // .exactly(5); // <-------- MISSING METHOD, cf: https://github.com/zesterer/chumsky/issues/41
+    // .exactly(5); // <-------- MISSING METHOD, cf: https://github.com/zesterer/chumsky/issues/41
 
     // let board = board_line
     //     .separated_by(c::text::newline())
@@ -132,44 +128,62 @@ fn input_parser() -> impl Parser<char, (Vec<BingoNum>, Vec<BingoBoard>), Error =
     random_numbers.then_ignore(newline).then(boards)
 }
 
-pub fn solve_part1(raw_input: &str) -> (usize, Option<usize>) {
-    let (random_numbers, mut boards) = input_parser().parse(raw_input).expect("parsing error");
-
-    let maybe_found_win = random_numbers.iter().find_map(|&rand_num| {
-        // println!("== Rand number: {} ==", rand_num);
+/// Returns an iterator over the results of winning boards.
+/// The first result is for the first winning board.
+/// The last result is for the last winning board.
+///
+/// NOTE: it works for the challenge but it's not perfect: if multiple boards end at the same
+/// random number, it will _always_ give the first one as the ending board. It can't return the
+/// 'true' last board if that happens at the very end.
+fn get_boards_win_results(
+    random_numbers: Vec<BingoNum>,
+    mut boards: Vec<BingoBoard>,
+) -> impl std::iter::Iterator<Item = (BingoNum, BingoBoard)> {
+    random_numbers.into_iter().filter_map(move |rand_num| {
+        // println!("== Marking remaining boards with rand number: {} ==", rand_num);
         boards.iter_mut().for_each(|board| {
             board.mark_with(rand_num);
-            // println!("Board:");
             // println!("{}", board);
         });
-        if let Some(win_board) = boards.iter().find(|board| board.is_winning()) {
-            // NOTE: Need to clone the board here!
-            // Otherwise I get a borrow checker error, saying that I'm trying to get an immutable
-            // borrow (here) while doing a mutable borrow (above for the for_each>>mark_with)
-            // Ref: https://stackoverflow.com/a/47619305/5655255
-            Some((rand_num, win_board.clone()))
+
+        // Find a winning board
+        let maybe_winning_board_idx = boards.iter().position(|board| board.is_winning());
+        if let Some(winning_board_idx) = maybe_winning_board_idx {
+            let winning_board = boards.remove(winning_board_idx);
+            // Remove all other winning boards
+            boards.retain(|board| !board.is_winning());
+            // Return the first winning board for that random number
+            Some((rand_num, winning_board))
         } else {
+            // No winner for that random number
             None
         }
-    });
+    })
+}
 
-    let score = if let Some((last_rand_num, win_board)) = maybe_found_win {
-        win_board
-            .unmarked_nums()
-            .iter()
-            .map(|&n| n as usize)
-            .sum::<usize>()
-            * (last_rand_num as usize)
-    } else {
-        0
-    };
+fn calc_final_score(unmarked_nums: &[BingoNum], last_rand_num: BingoNum) -> usize {
+    let sum_unmarked: usize = unmarked_nums.iter().map(|&n| n as usize).sum();
+    sum_unmarked * (last_rand_num as usize)
+}
 
+pub fn solve_part1(raw_input: &str) -> (usize, Option<usize>) {
+    let (random_numbers, boards) = input_parser().parse(raw_input).expect("parsing error");
+
+    let mut board_win_results = get_boards_win_results(random_numbers, boards);
+
+    let (last_rand_num, win_board) = board_win_results.next().unwrap();
+    let score = calc_final_score(&win_board.unmarked_nums(), last_rand_num);
     (score, Some(38594))
 }
 
 pub fn solve_part2(raw_input: &str) -> (usize, Option<usize>) {
-    let _input = input_parser().parse(raw_input).expect("parsing error");
-    (0, None)
+    let (random_numbers, boards) = input_parser().parse(raw_input).expect("parsing error");
+
+    let board_win_results = get_boards_win_results(random_numbers, boards);
+
+    let (last_rand_num, win_board) = board_win_results.last().unwrap();
+    let score = calc_final_score(&win_board.unmarked_nums(), last_rand_num);
+    (score, Some(21184))
 }
 
 #[cfg(test)]
@@ -242,5 +256,11 @@ mod tests {
     fn test_example_part1() {
         let (result, _) = solve_part1(EXAMPLE_INPUT.trim());
         assert_eq!(result, 4512);
+    }
+
+    #[test]
+    fn test_example_part2() {
+        let (result, _) = solve_part2(EXAMPLE_INPUT.trim());
+        assert_eq!(result, 1924);
     }
 }
