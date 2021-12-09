@@ -11,6 +11,7 @@ mod day03;
 mod day04;
 mod day05;
 mod day06;
+mod day07;
 
 // NOTE: We can't pass generic type that impl Read, so we pass a trait object, which will use
 //       dynamic dispatch on use.
@@ -50,6 +51,7 @@ static DAYS: &[Day] = &[
     def_day!(day04),
     def_day!(day05),
     def_day!(day06),
+    def_day!(day07),
 ];
 
 fn print_usage() {
