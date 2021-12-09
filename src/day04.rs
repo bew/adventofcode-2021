@@ -128,13 +128,13 @@ fn input_parser() -> impl Parser<char, (Vec<BingoNum>, Vec<BingoBoard>), Error =
     random_numbers.then_ignore(newline).then(boards)
 }
 
-/// Returns an iterator over the results of winning boards.
-/// The first result is for the first winning board.
-/// The last result is for the last winning board.
-///
-/// NOTE: it works for the challenge but it's not perfect: if multiple boards end at the same
-/// random number, it will _always_ give the first one as the ending board. It can't return the
-/// 'true' last board if that happens at the very end.
+// Returns an iterator over the results of winning boards.
+// The first result is for the first winning board.
+// The last result is for the last winning board.
+//
+// NOTE: it works for the challenge but it's not perfect: if multiple boards end at the same
+// random number, it will _always_ give the first one as the ending board. It can't return the
+// 'true' last board if that happens at the very end.
 fn get_boards_win_results(
     random_numbers: Vec<BingoNum>,
     mut boards: Vec<BingoBoard>,

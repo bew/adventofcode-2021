@@ -21,7 +21,9 @@ impl std::fmt::Display for Lanternfish {
 //   1,2,3,4 ...
 fn input_parser() -> impl Parser<char, Vec<Lanternfish>, Error = Simple<char>> {
     let number = c::text::int(10).map(|s: String| s.parse().unwrap());
-    let lanternfish = number.map(|n| Lanternfish { days_before_childbirth: n });
+    let lanternfish = number.map(|n| Lanternfish {
+        days_before_childbirth: n,
+    });
     lanternfish.separated_by(just(','))
 }
 
@@ -30,7 +32,8 @@ pub fn solve_part1(raw_input: &str) -> (usize, Option<usize>) {
     let run_for_days = 80;
 
     // impl bete & mechante... (but slow and using lots of memory..)
-    #[allow(unused_variables)] for day in 1..=run_for_days {
+    #[allow(unused_variables)]
+    for day in 1..=run_for_days {
         // Run simulation for that day
         let mut nb_fish_birth = 0;
         fishes.iter_mut().for_each(|fish| {
@@ -43,7 +46,9 @@ pub fn solve_part1(raw_input: &str) -> (usize, Option<usize>) {
         });
         // Let new fishes be born!
         for _ in 0..nb_fish_birth {
-            fishes.push(Lanternfish { days_before_childbirth: 8 });
+            fishes.push(Lanternfish {
+                days_before_childbirth: 8,
+            });
         }
         // Print
         // println!("After {:2} days, nb fishes: {}", day, fishes.len());
@@ -66,7 +71,9 @@ impl LanternfishBirthSimulator {
     }
 
     pub fn new() -> Self {
-        Self { fish_count_by_birth_stage: HashMap::new() }
+        Self {
+            fish_count_by_birth_stage: HashMap::new(),
+        }
     }
 
     fn add_fish_at_stage(&mut self, stage: BirthStage) {
