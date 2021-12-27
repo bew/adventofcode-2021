@@ -12,23 +12,27 @@ mod day04;
 mod day05;
 mod day06;
 mod day07;
+mod day08;
 
 // NOTE: We can't pass generic type that impl Read, so we pass a trait object, which will use
 //       dynamic dispatch on use.
 type PartFn = fn(&str) -> (usize, Option<usize>);
 
 // We define a lifetime in 'Day', to be able to store references in the struct.
-struct Day<'a> {
-    name: &'a str,
+struct Day {
+    name: &'static str,
+    // description: &'static str,
     part1: PartFn,
     part2: PartFn,
-    default_input: &'a str,
+    default_input: &'static str,
 }
 
 macro_rules! def_day {
+    // ($d: ident, $desc: tt) => {
     ($d: ident) => {
         Day {
             name: stringify!($d),
+            // description: stringify!($desc),
             part1: $d::solve_part1,
             part2: $d::solve_part2,
             default_input: concat!("./inputs/", stringify!($d), ".txt"),
@@ -44,14 +48,15 @@ static DAYS: &[Day] = &[
     //     default_input: "./inputs/day01.txt",
     // },
     // same as:
-    def_day!(day01),
+    def_day!(day01), // Sonar Sweep
     // ---
-    def_day!(day02),
-    def_day!(day03),
-    def_day!(day04),
-    def_day!(day05),
-    def_day!(day06),
-    def_day!(day07),
+    def_day!(day02), // Dive!
+    def_day!(day03), // Binary Diagnostic
+    def_day!(day04), // Giant Squid (bingo simulation)
+    def_day!(day05), // Hydrothermal Venture (crossing lines)
+    def_day!(day06), // Lanternfish (recursive fish colony)
+    def_day!(day07), // The Treachery of Whales (efficient crab movements)
+    def_day!(day08), // Seven Segment Search
 ];
 
 fn print_usage() {
