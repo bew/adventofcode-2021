@@ -7,5 +7,5 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1"
-chumsky = "0.6.0"
+chumsky = "0.*"
 lazy_static = "1"

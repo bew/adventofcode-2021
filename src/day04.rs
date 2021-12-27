@@ -102,6 +102,7 @@ impl std::fmt::Display for BingoBoard {
 fn input_parser() -> impl Parser<char, (Vec<BingoNum>, Vec<BingoBoard>), Error = Simple<char>> {
     let number = c::text::int(10).map(|s: String| s.parse().unwrap());
     let newline = c::text::newline();
+    let double_newline = newline.then(newline);
 
     let random_numbers = number.separated_by(just(','));
 
@@ -109,23 +110,20 @@ fn input_parser() -> impl Parser<char, (Vec<BingoNum>, Vec<BingoBoard>), Error =
         .ignore_then(number)
         .or(number)
         .separated_by(just(' '))
-        // NOTE: at_least is necessary to not match the final newline followed by the end.
-        .at_least(1);
-    // .exactly(5); // <-------- MISSING METHOD, cf: https://github.com/zesterer/chumsky/issues/41
+        // NOTE: at_least/exactly is necessary to not match the final newline followed by the end.
+        .exactly(5);
 
-    // let board = board_line
-    //     .separated_by(c::text::newline())
-    //     .exactly(5) // <--------- MISSING METHOD, cf: https://github.com/zesterer/chumsky/issues/41
-    //     .map(BingoBoard::from_input);
-    let board = (newline.ignore_then(board_line))
-        .repeated()
-        .at_least(5)
-        .at_most(5)
+    let board = board_line
+        .separated_by(newline)
+        .exactly(5)
         .map(BingoBoard::from_input);
 
-    let boards = board.separated_by(newline);
+    let boards = board.separated_by(double_newline);
 
-    random_numbers.then_ignore(newline).then(boards)
+    random_numbers
+        .then_ignore(double_newline)
+        .then(boards)
+        .then_ignore(newline.then(end()))
 }
 
 // Returns an iterator over the results of winning boards.

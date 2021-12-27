@@ -110,7 +110,7 @@ impl std::fmt::Display for OceanMap {
 fn input_parser() -> impl Parser<char, Vec<VentLine>, Error = Simple<char>> {
     let number = c::text::int(10).map(|s: String| s.parse().unwrap());
     let point = (number.then_ignore(just(',')).then(number)).map(Point2D::from_coords);
-    let arrow = (just(' ').then(just('-')).then(just('>')).then(just(' '))).ignored(); // TODO: replace with 'keyword'
+    let arrow = just(" -> ").ignored();
     let ventline = (point.then_ignore(arrow).then(point)).map(VentLine::between_points);
     ventline.separated_by(c::text::newline())
 }

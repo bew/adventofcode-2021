@@ -18,7 +18,7 @@ use chumsky::prelude::*;
 //   01010...
 //   ...
 fn input_parser() -> impl Parser<char, (u8, Vec<usize>), Error = Simple<char>> {
-    let bits = just('0').or(just('1')).repeated().at_least(1);
+    let bits = one_of("01").repeated().at_least(1);
     let bit_based_number = bits.collect::<String>().map(|s: String| {
         let num_from_bits = usize::from_str_radix(&s, 2).unwrap();
         (s.len() as u8, num_from_bits)
