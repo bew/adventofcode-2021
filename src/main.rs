@@ -14,6 +14,7 @@ mod day06;
 mod day07;
 mod day08;
 mod day09;
+mod day10;
 
 // NOTE: We can't pass generic type that impl Read, so we pass a trait object, which will use
 //       dynamic dispatch on use.
@@ -59,6 +60,7 @@ static DAYS: &[Day] = &[
     def_day!(day07), // The Treachery of Whales (efficient crab movements)
     def_day!(day08), // Seven Segment Search
     def_day!(day09), // Smoke Basin (find low points & basins in a heightmap) FOR NOW...
+    def_day!(day10), // Syntax Scoring ([}(])>>)
 ];
 
 fn print_usage() {
